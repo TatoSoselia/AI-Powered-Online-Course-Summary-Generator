@@ -8,6 +8,7 @@ from sqlalchemy.future import select
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.jwt import TokenResponse
+from app.settings import settings
 from app.utils.security import create_token, decode_token
 
 oauth2_scheme = HTTPBearer()
@@ -19,12 +20,12 @@ def generate_tokens(user) -> TokenResponse:
     """
     access_token = create_token(
         data={"sub": user.email, "uuid": str(user.id), "email": user.email},
-        expires_delta=timedelta(minutes=2),
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         token_type="access",
     )
     refresh_token = create_token(
         data={"sub": user.email, "uuid": str(user.id), "email": user.email},
-        expires_delta=timedelta(minutes=15),
+        expires_delta=timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES),
         token_type="refresh",
     )
     return TokenResponse.model_validate(
